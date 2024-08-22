@@ -1,14 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <h1>Hello dd</h1>
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eum omnis optio
-    itaque placeat aliquid consequatur, est sapiente animi minus eveniet, quis
-    ullam suscipit? Iure, commodi velit magnam modi sequi dolorem.
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carl Cook</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+
+</head>
+
+<body>
+
+  <section id="about-me">
+
+    <nav>
+      <div class="personal__logo">Carl Cook</div>
+      <ul class="nav__link--list">
+        <li class="nav__link">
+          <a href="#languages" class="
+            nav__link--anchor
+            link__hover-effect
+            link__hover-effect--color">
+            Languages</a>
+        </li>
+        <li class="nav__link">
+          <a href="#projects" class="
+            nav__link--anchor
+            link__hover-effect
+            link__hover-effect--color">
+            Projects</a>
+        </li>
+        <li class="nav__link">
+          <a href="mailto:carl@cccook.com" class="
+            nav__link--anchor
+            nav__link--anchor-primary
+            icon
+            icon-envelope-at">
+           Email
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="flex flex-1">
+      <div class="about-me__info row">
+        <div class="about-me__info--container">
+          <figure class="about-me__picture--mask">
+            <img src="assets/cc.jpg" class="about-me__picture" alt="Picture of Carl Cook">
+          </figure>
+          <h1 class="about-me__info--title">
+           <span class="wave">👋</span> Hello and Welcome to My Portfolio!
+          </h1>
+          <p class="about-me__info--para">
+            I'm a <strong class="text--color">full-stack software engineer</strong> with a passion for building
+            responsive, secure and performant web
+            applications for great user experiences.
+          </p>
+          <div class="about-me__links">
+            <a href="https://www.linkedin.com/in/cccook/" target="_blank" class="about-me__link">
+              <i class="icon icon-linkedin"> LinkedIn</i>              
+            </a>
+            <a href="https://github.com/carlcom/" target="_blank" class="about-me__link">
+              <i class="icon icon-github"> GitHub</i>
+            </a>
+            <a href="mailto:carl@cccook.com" target="_blank" class="about-me__link">
+              <i class="icon icon-envelope-at"> Email</i>
+            </a>
+            <a href="assets/Carl_Cook_resume.pdf" target="_blank" class="about-me__link">
+              <i class="icon icon-filetype-pdf"> Resume</i>       
+            </a>
+          </div>
+        </div>
+        <figure class="about-me__img--container">
+          <img src="assets/slide.webp" class="about-me__img" alt="People developing web applications">
+        </figure>
+      </div>
+    </div>
+  </section>
+  <section id="languages">
+    <div class="container">
+      <div class="row">
+        <h1 class="section__title">This is my <span class="text--color">technology stack</span></h1>
+        <div class="language__list">
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img
+                src="assets/html5_badge.svg"
+                alt="Html Logo" class="language__img" />
+            </figure>
+            <span class="language__name">HTML</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="https://cdn.iconscout.com/icon/free/png-256/css-131-722685.png" alt="CSS Logo"
+                class="language__img" />
+            </figure>
+            <span class="language__name">CSS</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="https://cdn.iconscout.com/icon/free/png-256/javascript-1-225993.png" alt="JavaScript Logo"
+                class="language__img" />
+            </figure>
+            <span class="language__name">JavaScript</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="https://cdn.iconscout.com/icon/free/png-256/typescript-3521774-2945272.png"
+                alt="TypeScript Logo" class="language__img" />
+            </figure>
+            <span class="language__name">TypeScript</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="https://cdn.iconscout.com/icon/free/png-256/react-3-1175109.png" alt="React Logo"
+                class="language__img" />
+            </figure>
+            <span class="language__name">React</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="https://cdn.iconscout.com/icon/free/png-256/free-csharp-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-language-pack-logos-icons-1175241.png?f=webp&w=256" alt="CSharp Logo" class="language__img" />
+            </figure>
+            <span class="language__name">C Sharp</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="assets/blazor.svg" alt="Blazor Logo" class="language__img" />
+            </figure>
+            <span class="language__name">Blazor</span>
+          </div>
+          <div class="language">
+            <figure class="language__img--wrapper">
+              <img src="assets/sql-server.svg" alt="SQL Logo" class="language__img" />
+            </figure>
+            <span class="language__name">SQL Server</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="projects">
+    <div class="container">
+      <div class="row">
+        <h1 class="section__title">Here are some of my <span class="text--color">projects</span></h1>
+        <ul class="project__list">
+          <li class="project">
+            <div class="project__wrapper">
+              <img src="assets/zcsd.png" class="project__img" alt="zcsd.org">
+              <div class="project__description">
+                <h3 class="project__description--title">Z-car Club of San Diego</h3>
+                <h4 class="project__description--sub-title">
+                  Html, CSS, JavaScript
+                </h4>
+                <p class="project__description--para">
+                  In January 2022 I took over and remade the site.
+                </p>
+                <div class="project__description--links">
+
+                  <a href="https://zcsd.org" target="_blank" class="project__description--link
+                  icon icon-link-45deg"> zcsd.org
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="project">
+            <div class="project__wrapper">
+              <img src="assets/hover.png" class="project__img" alt="Hover.Us">
+              <div class="project__description">
+                <h3 class="project__description--title">Hoverboard project</h3>
+                <h4 class="project__description--sub-title">
+                  Html, CSS, JavaScript, C#, SQL
+                </h4>
+                <p class="project__description--para">
+                  Big dreams to make a board like many have tried, but nobody has gotten working like it should.
+                </p>
+                <div class="project__description--links">
+                  <a href="https://github.com/Hover-Us/Hover" target="_blank" 
+                  class="project__description--link
+                  icon icon-github"> code
+                  </a>
+                  <a href="https://hover.us" target="_blank" class="project__description--link
+                  icon icon-link-45deg"> Hover.Us
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="project">
+            <div class="project__wrapper">
+              <img src="assets/zcsd.png" class="project__img" alt="Next project">
+              <div class="project__description">
+                <h3 class="project__description--title">Next Project - Coming Soon</h3>
+                <h4 class="project__description--sub-title">
+                  Html, CSS, JavaScript, React
+                </h4>
+                <p class="project__description--para">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam leo, scelerisque sed odio eget,
+                  luctus faucibus augue. Fusce volutpat iaculis dapibus. Lorem ipsum dolor sit amet, consectetur
+                  adipiscing elit. Maecenas id eleifend libero. In hac habitasse platea dictumst.
+                </p>
+                <div class="project__description--links">
+                  <a href="https://www.github.com" target="_blank" class="project__description--link">
+                    
+                  </a>
+                  <a href="https://www.github.com" class="project__description--link">
+                    
+                  </a>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="row footer__row">
+      <a href="#" class="footer__anchor">
+        <figure class="footer__logo">
+          <img src="assets/icon-180x180.png" class="footer__logo--img" alt="">
+        </figure>
+        <span class="footer__logo--popper">
+          Top&nbsp;&#8593;
+        </span>
+      </a>
+      <div class="footer__social--list">
+        <a href="https://www.linkedin.com/in/cccook/" target="_blank" class="
+          footer__social--link
+          link__hover-effect
+          link__hover-effect--white
+        " target="_blank">LinkedIn</a>
+        <a href="https://github.com/carlcom/" target="_blank" class="
+          footer__social--link
+          link__hover-effect
+          link__hover-effect--white
+        " target="_blank">GitHub</a>
+        <a href="mailto:carl@cccook.com" target="_blank" class="
+          footer__social--link
+          link__hover-effect
+          link__hover-effect--white
+        " target="_blank">Email</a>
+        <a href="assets/Carl_Cook_resume.pdf" target="_blank" class="
+          footer__social--link
+          link__hover-effect
+          link__hover-effect--white
+        " target="_blank">Resume</a>
+      </div>
+      <div class="footer__copyright">Copyright © Carl Cook</div>
+    </div>
+  </footer>
+</body>
+
 </html>
