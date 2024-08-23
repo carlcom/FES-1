@@ -78,7 +78,7 @@ li {
 }
 .row {
   width: 100%;
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
   padding: 0 12px;
 }
@@ -187,6 +187,7 @@ nav {
 .about-me__info {
   display: flex;
   flex-direction: column;
+  max-width: 800px;
 }
 
 .about-me__info--container {
@@ -222,8 +223,7 @@ nav {
 
 .about-me__picture {
   width: 100%;
-  transform: scale(1.2);
-  padding-top: 10px;
+  height: auto;
 }
 
 .about-me__info--title {
@@ -238,11 +238,12 @@ nav {
 .about-me__link {
   font-size: 16px;
   color: #242424;
-  padding: 4px 8px;
-  margin: 0 8px;
+  padding: 8px 24px;
+  margin: 0 4px;
   border-radius: 5px;
   border: 1px solid transparent;
   transition: all .2s;
+  display: inline-block;
 }
 
 .about-me__link:hover {
@@ -275,7 +276,7 @@ nav {
 }
 .about-me__img {
   width: 100%;
-  height: 600px;
+  max-height: 600px;
   animation: fade-in 1200ms 800ms backwards;
 }
 
@@ -465,9 +466,16 @@ footer {
   padding: 6% 0;
 }
 
-.footer__logo--img {
+.footer__logo {
   width: 70px;
   height: 70px;
+  background-color: var(--text-color);
+  border-radius: 20px;
+}
+.footer__logo img {
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: lighten;
 }
 
 .footer__social--link,
