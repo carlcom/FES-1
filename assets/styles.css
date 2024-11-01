@@ -28,6 +28,12 @@ p {
   font-size: 16px;
 }
 
+h1 + p {
+  text-align: center;
+  font-style: italic;
+  font-size: 24px;
+}
+
 a {
   text-decoration: none;
   position: relative;
@@ -318,7 +324,7 @@ nav {
 }
 
 .language {
-  width: 25%;
+  width: 33.33%;
   display: flex;
   justify-content: center;
   position: relative;
@@ -507,7 +513,6 @@ footer {
 }
 
 .footer__social--link,
-.footer__copyright,
 .footer__logo--popper {
   color: #fff;
 }
