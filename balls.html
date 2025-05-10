@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bouncing Balls</title>
+  <style>
+#animationCanvas {
+  border: 1px solid black;
+}
+
+.flex-container {
+    display: flex;
+}
+.flex-child {
+    flex: 1;
+  margin-right: 2em;
+}
+  </style>
+</head>
+<body>
+  <div class="flex-container">
+    <div class="flex-child">
+      <label for="numBalls">Number of Balls: <span id="numBallsValue">5</span></label>
+      <input id="numBalls" type="range" min="2" max="9" value="5">
+      <label for="showPaths">Show Paths: <span id="showPathsValue">9</span></label>
+      <input id="showPaths" type="range" min="0" max="100" value="3">
+      <br>
+
+      <label for="minRadius">Radius Range: <span id="minRadiusValue">10</span> - <span
+          id="maxRadiusValue">30</span></label>
+      <input id="minRadius" type="range" min="5" max="50" value="10">
+      <input id="maxRadius" type="range" min="5" max="50" value="30">
+      <br>
+
+      <button id="stopButton">Slower</button>
+      <button id="startButton">Faster</button>
+      speedFactor: <span id="delayTxt">4</span>
+      <br>
+      <div id="speedDisplay">Speed: </div>
+
+      <svg id="animationCanvas" width="600" height="400"></svg>
+    </div>
+    <div class="flex-child">
+      <svg id="collisionTimeline" width="150" height="465"></svg><br>Distance until impact
+    </div>
+    <div class="flex-child">I was looking for some JS to WASM speed comparisons and saw <a target="_blank"
+        href="https://stesel.github.io/wasm-canvas-perf/wasm/?particles=20">wasm particles</a>. I wanted the collisions
+      to be exact, not move everything an arbitrary amount before checking. I also wanted the collisions to follow the
+      laws of physics. I found <a target="_blank" href="https://codepen.io/anon/pen/oXZvoe">this codepen</a> which has
+      nice collisions, and I forked it. I added <i>Distance until impact</i> to help debugging the collision calulation,
+      but I like it.<br>
+      The program only knows the next collision, so after that, the <i>Distance until impact</i> can jump.<br>
+      If speedFactor, and other settings, is high enough, you might notice that everything slows down when a lot of
+      impacts are happening. This is because after every impact, the next impact is calculated, and everything
+      progresses smoothly until then, when everything is recalculated.<br>
+      Because there is no use of random after the initial set up, we could make <i>Distance until impact</i> always
+      accurate, but why?
+      <br>
+      To make the collisions realistic, the mass is equal to the area, so they are not balls colliding, but discs with
+      the same thickness.<br>
+      speedFactor is
+    </div>
+</body>
+<script>
+  // forked from https://codepen.io/anon/pen/oXZvoe
+    let animationInterval = null;
+    let speedFactor = 0.5; // Determines speed, modify this to speed up or slow down
+    const ballPathsMap = new Map(); // Track paths for showPaths
+    let numBalls = 5; // Initial number of balls
+    let minRadius = 5; // Minimum radius
+    let maxRadius = 30; // Maximum radius
+    let lastFrameTime = 0; // Declare lastFrameTime here
+    const FPS = 60;
+    const frameTime = 1000 / FPS;
+    const maxSpeed = 11;
+    let currentSpeedDisplay = 0;
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+      // Event listeners
+      document.getElementById('numBalls').addEventListener('input', updateNumBalls);
+      document.getElementById('showPaths').addEventListener('input', updateShowPaths);
+      document.getElementById('minRadius').addEventListener('input', updateMinRadius);
+      document.getElementById('maxRadius').addEventListener('input', updateMaxRadius);
+      document.getElementById("startButton").addEventListener("click", SpeedUpAnimation);
+      document.getElementById("stopButton").addEventListener("click", stopOrSlowDownAnimation);
+    });
+
+
+    function updateNumBalls() {
+      numBalls = parseInt(this.value);
+      document.getElementById('numBallsValue').textContent = numBalls;
+      updateBalls();
+    }
+
+    function updateShowPaths() {
+      const showPaths = parseInt(this.value);
+      document.getElementById('showPathsValue').textContent = showPaths;
+    }
+
+    function updateMinRadius() {
+      minRadius = parseInt(this.value);
+      document.getElementById('minRadiusValue').textContent = minRadius;
+      updateBalls();
+    }
+
+    function updateMaxRadius() {
+      maxRadius = parseInt(this.value);
+      document.getElementById('maxRadiusValue').textContent = maxRadius;
+      updateBalls();
+    }
+
+    function SpeedUpAnimation() {
+      speedFactor = Math.min(maxSpeed, speedFactor++); // Increase speed factor
+      if (!animationInterval) {
+        lastFrameTime = 0; // Reset lastFrameTime
+        animationInterval = requestAnimationFrame(animateBalls);
+      }
+      document.getElementById("delayTxt").innerText = speedFactor;
+    }
+
+    function stopOrSlowDownAnimation() {
+      if (speedFactor == 0 && animationInterval) {
+        cancelAnimationFrame(animationInterval);
+        animationInterval = null;
+        document.getElementById("delayTxt").innerText = "Stopped"
+      } else {
+        speedFactor = speedFactor--;
+        document.getElementById("delayTxt").innerText = speedFactor;
+      }
+    }
+
+    function updateBalls() {
+      // Not movement, but the user selected properties
+      const svg = document.getElementById('animationCanvas');
+      svg.innerHTML = ''; // Clear existing balls
+
+      const balls = [];
+
+      for (let i = 0; i < numBalls; i++) {
+        let radius, cx, cy;
+        let validPosition = false;
+
+        while (!validPosition) {
+          const sizeValue = i / (numBalls - 1); // A value for size, from 0 to 1
+
+          radius = minRadius + sizeValue * (maxRadius - minRadius);
+          cx = radius + Math.random() * (svg.clientWidth - 2 * radius);
+          cy = radius + Math.random() * (svg.clientHeight - 2 * radius);
+
+          validPosition = balls.every(ball => {
+            const dx = ball.cx - cx;
+            const dy = ball.cy - cy;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance > ball.radius + radius; // No overlap
+          });
+        }
+
+        const ball = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        ball.setAttribute("cx", cx);
+        ball.setAttribute("cy", cy);
+        ball.setAttribute("r", radius);
+        ball.setAttribute("content", i + 1);
+        ball.setAttribute("fill", `hsl(${Math.random() * 360}, 100%, 50%)`);
+
+        // Assigning velocities
+        const vx = (Math.random() - 0.5) * 4; // Range between -2 and 2
+        const vy = (Math.random() - 0.5) * 4; // Range between -2 and 2
+
+        ball.dataset.vx = vx;
+        ball.dataset.vy = vy;
+
+        svg.appendChild(ball);
+        balls.push({ cx, cy, radius });
+      }
+    }
+
+    function animateBalls(currentTime) {
+      animationInterval = requestAnimationFrame(animateBalls);
+
+      if (lastFrameTime === 0) {
+        lastFrameTime = currentTime;
+        return;
+      }
+
+      const deltaTime = (currentTime - lastFrameTime) / 10;
+      lastFrameTime = currentTime;
+
+      const svg = document.getElementById('animationCanvas');
+      const timelineSvg = document.getElementById('collisionTimeline');
+      const balls = Array.from(svg.querySelectorAll('circle'));
+
+      let minTime = Infinity;
+      let collisionDetails = null;
+
+      const showPaths = Number(document.getElementById('showPaths').value);
+      const svgWidth = svg.clientWidth;
+      const svgHeight = svg.clientHeight;
+
+      for (let i = 0; i < balls.length; i++) {
+        let minTimeBallA = Infinity;
+        let thisBallCollisionDetails = null;
+        const ballA = balls[i];
+        ballA.removeAttribute("stroke");
+        // The last ballA only got checked for ball collisions as ballB
+        if (ballA.hasAttribute('minTimeBallB'))
+          minTimeBallA = parseFloat(ballA.getAttribute('minTimeBallB'));
+
+        const pA = { x: parseFloat(ballA.getAttribute('cx')), y: parseFloat(ballA.getAttribute('cy')) };
+        const vA = { x: parseFloat(ballA.dataset.vx), y: parseFloat(ballA.dataset.vy) };
+        const speedA = Math.sqrt(vA.x * vA.x + vA.y * vA.y);
+        const rA = parseFloat(ballA.getAttribute('r'));
+
+        for (let j = i + 1; j < balls.length; j++) {
+          const ballB = balls[j];
+          const pB = { x: parseFloat(ballB.getAttribute('cx')), y: parseFloat(ballB.getAttribute('cy')) };
+          const vB = { x: parseFloat(ballB.dataset.vx), y: parseFloat(ballB.dataset.vy) };
+          const rB = parseFloat(ballB.getAttribute('r'));
+
+          const distance = { x: pB.x - pA.x, y: pB.y - pA.y };
+          const velocity = { x: vB.x - vA.x, y: vB.y - vA.y };
+
+          const collisionTime = solveCollisionTime(distance, velocity, rA, rB);
+          if (collisionTime !== null && collisionTime < minTimeBallA) {
+            minTimeBallA = collisionTime;
+            thisBallCollisionDetails = { type: 'ball', ballA, ballB };
+            const alreadySet = ballB.getAttribute('minTimeBallB');
+            if (alreadySet == null || minTimeBallA < alreadySet)
+              ballB.setAttribute('minTimeBallB', minTimeBallA);
+          }
+
+        }
+
+        // Wall Collisions: wallx means a verticle side wall, hit by moving +-X
+        let timeToWall = Infinity;
+        if (vA.x > 0) {
+          timeToWall = (svgWidth - pA.x - rA) / vA.x;
+        } else if (vA.x < 0) {
+          timeToWall = (pA.x - rA) / -vA.x;
+        }
+        if (timeToWall < minTimeBallA) {
+          minTimeBallA = timeToWall;
+          thisBallCollisionDetails = { type: 'wallx', ball: ballA };
+        }
+        if (vA.y > 0) {
+          timeToWall = (svgHeight - pA.y - rA) / vA.y;
+        } else if (vA.y < 0) {
+          timeToWall = (pA.y - rA) / -vA.y;
+        } else timeToWall = Infinity;
+        if (timeToWall < minTimeBallA) {
+          minTimeBallA = timeToWall;
+          thisBallCollisionDetails = { type: 'wally', ball: ballA };
+        }
+
+        const distanceToCollision = speedA * minTimeBallA;
+        ballA.setAttribute('data-collision-distance', distanceToCollision.toFixed(0));
+
+
+        if (minTimeBallA < minTime) {
+          collisionDetails = thisBallCollisionDetails;
+          minTime = minTimeBallA;
+        }
+        ballA.removeAttribute('minTimeBallB');
+      }
+
+      const timelineHeight = timelineSvg.height.baseVal.value;
+      const columnWidth = 10;
+
+
+      timelineSvg.innerHTML = ''; // Clear previous columns
+      const vMultiplier = Math.min(minTime, deltaTime * speedFactor);
+
+
+      for (let i = 0; i < balls.length; i++) {
+        const ball = balls[i];
+        let cx = parseFloat(ball.getAttribute('cx'));
+        let cy = parseFloat(ball.getAttribute('cy'));
+        const vx = parseFloat(ball.dataset.vx);
+        const vy = parseFloat(ball.dataset.vy);
+        const radius = parseFloat(ball.getAttribute('r'));
+        const distanceToCollision = ball.getAttribute('data-collision-distance');
+
+        // Update position
+        cx += vx * vMultiplier;
+        cy += vy * vMultiplier;
+
+        // Draw column for each ball's distance to collision
+        const column = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        column.setAttribute("x", (5 + columnWidth) * i);
+        column.setAttribute("y", timelineHeight - Math.min(distanceToCollision, timelineHeight));
+        column.setAttribute("width", columnWidth);
+        column.setAttribute("height", Math.min(distanceToCollision, timelineHeight));
+        column.setAttribute("fill", ball.getAttribute("fill"));
+        timelineSvg.appendChild(column);
+
+        // Update ball position
+        ball.setAttribute('cx', cx);
+        ball.setAttribute('cy', cy);
+
+        // Draw path
+        if (showPaths > 0) {
+          drawPath(svg, ball, cx, cy, vx, vy, deltaTime, showPaths);
+        }
+      }
+
+      if (vMultiplier == minTime) {
+        handleCollision(collisionDetails);
+      }
+
+      // Update speed display
+      const newSpeedValue = 10 / deltaTime;
+      currentSpeedDisplay = newSpeedValue + 0.9 * currentSpeedDisplay;
+      document.getElementById("speedDisplay").textContent = `Speed: ${currentSpeedDisplay.toFixed(1)} FPS`;
+
+    }
+
+    function drawPath(svg, ball, cx, cy, vx, vy, deltaTime, maxPaths) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", cx);
+      line.setAttribute("y1", cy);
+      line.setAttribute("x2", cx + vx * deltaTime * speedFactor);
+      line.setAttribute("y2", cy + vy * deltaTime * speedFactor);
+      line.setAttribute("stroke", ball.getAttribute('fill'));
+      line.setAttribute("stroke-width", "2");
+      svg.appendChild(line);
+
+      if (!ballPathsMap.has(ball)) {
+        ballPathsMap.set(ball, []);
+      }
+      const paths = ballPathsMap.get(ball);
+      paths.push(line);
+
+      // Keep only the last `maxPaths` number of paths
+      while (paths.length > maxPaths) {
+        svg.removeChild(paths.shift());
+      }
+
+      // Update the opacity of paths
+      paths.forEach((path, index) => {
+        const opacity = (index + 1) / paths.length;
+        path.setAttribute("opacity", opacity);
+      });
+    }
+
+
+    function handleCollision(collisionDetails) {
+      if (collisionDetails.type === 'ball') {
+        const { ballA, ballB } = collisionDetails;
+        ballA.setAttribute("stroke", "#000");
+        ballB.setAttribute("stroke", "#000");
+        ballA.setAttribute("fill", "#ebf");
+        ballB.setAttribute("fill", "#ebf");
+        const rA = parseFloat(ballA.getAttribute('r'));
+        const rB = parseFloat(ballB.getAttribute('r'));
+
+        // Mass proportional to R^2
+        const massA = rA * rA;
+        const massB = rB * rB;
+
+
+        // Velocities before collision
+        const vxA = parseFloat(ballA.dataset.vx);
+        const vyA = parseFloat(ballA.dataset.vy);
+        const vxB = parseFloat(ballB.dataset.vx);
+        const vyB = parseFloat(ballB.dataset.vy);
+
+        // Calculate collision normal
+        const nx = parseFloat(ballB.getAttribute('cx')) - parseFloat(ballA.getAttribute('cx'));
+        const ny = parseFloat(ballB.getAttribute('cy')) - parseFloat(ballA.getAttribute('cy'));
+        const dist = Math.sqrt(nx * nx + ny * ny);
+        const unitNx = nx / dist;
+        const unitNy = ny / dist;
+
+        // Calculate relative velocity
+        const vrx = vxB - vxA;
+        const vry = vyB - vyA;
+
+        // Calculate velocity along the normal
+        const velocityAlongNormal = vrx * unitNx + vry * unitNy;
+
+        // Calculate impulse scalar
+        const impulse = 2 * velocityAlongNormal / (1 / massA + 1 / massB);
+
+        // Apply impulse
+        const impulseX = impulse * unitNx;
+        const impulseY = impulse * unitNy;
+
+        ballA.dataset.vx = (vxA + impulseX / massA).toString();
+        ballA.dataset.vy = (vyA + impulseY / massA).toString();
+        ballB.dataset.vx = (vxB - impulseX / massB).toString();
+        ballB.dataset.vy = (vyB - impulseY / massB).toString();
+
+      } else {
+        const ball = collisionDetails.ball;
+        const rA = parseFloat((ball).getAttribute('r'));
+        ball.setAttribute("stroke", "#000");
+
+        if (collisionDetails.type === 'wallx') {
+          ball.dataset.vx = -parseFloat(ball.dataset.vx);
+        } else if (collisionDetails.type === 'wally') {
+          ball.dataset.vy = -parseFloat(ball.dataset.vy);
+        } else {
+          console.error("Unknown collision type:", collisionDetails.type);
+        }
+      }
+      collisionDetails = null;
+    }
+    /**
+   * Calculates the time until collision between two balls.
+   * @param {Object} distance - The distance vector between the centers of the two balls (distance.x, distance.y).
+   * @param {Object} velocity - The relative velocity vector between the two balls (velocity.x, velocity.y).
+   * @param {number} rA - The radius of the first ball.
+   * @param {number} rB - The radius of the second ball.
+   * @returns {number|null} The time until collision, or null if no collision will occur.
+   */
+    function solveCollisionTime(distance, velocity, rA, rB) {
+      const b = 2 * (distance.x * velocity.x + distance.y * velocity.y); // 2 * (distance • velocity)
+      if (b >= 0) return null; // Balls are moving apart
+
+      const a = velocity.x * velocity.x + velocity.y * velocity.y; // velocity • velocity
+      const c = distance.x * distance.x + distance.y * distance.y - (rA + rB) * (rA + rB); // distance • distance - (rA + rB)^2
+
+      const discriminant = b * b - 4 * a * c;
+
+      if (discriminant < 0) {
+        return null; // No real solution, no collision
+      }
+
+      const sqrtDiscriminant = Math.sqrt(discriminant);
+      const t1 = (-b - sqrtDiscriminant) / (2 * a);
+      const t2 = (-b + sqrtDiscriminant) / (2 * a);
+
+      if (t1 >= 0 && t2 >= 0) {
+        return Math.min(t1, t2);
+      } else if (t1 >= 0) {
+        return t1;
+      } else if (t2 >= 0) {
+        return t2;
+      }
+
+      return null; // Both times are negative, no collision
+    }
+    // Start the animation
+    updateBalls();
+    animationInterval = requestAnimationFrame(animateBalls);
+
+  </script>
+</html>
